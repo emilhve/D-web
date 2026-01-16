@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>D-Web</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="noise"></div>
+    <canvas class="confetti" aria-hidden="true"></canvas>
+    <header class="site-header">
+      <div class="logo">
+        <div class="logo-title">Daniela Lucia Sanchez</div>
+        <div class="logo-subtitle">Verdens beste menneske</div>
+      </div>
+      <button class="menu-button" type="button" aria-expanded="false" aria-controls="side-menu">
+        <span class="menu-label">Menu</span>
+        <span class="menu-icon" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+      </button>
+    </header>
+
+    <main>
+      <section class="hero" id="work">
+        <div class="hero-content">
+          <h1>
+            <span class="hero-intro">Til min kjære Daniela,</span>
+            Gratulerer så mye med dagen! 🎉
+          </h1>
+          <p class="lead">Håper du liker dette lille prosjektet. ❤️</p>
+        </div>
+        <div class="hero-card">
+          <img class="hero-heart" src="resources/hjerte-gif.gif" alt="Pulsing heart" />
+        </div>
+      </section>
+
+      <section class="slideshow-section" id="aktivitetsvelgeren">
+        <div class="slideshow-header">
+          <h2>Daniela på sitt beste</h2>
+          <button class="slideshow-toggle" type="button" aria-pressed="false">Pause</button>
+        </div>
+        <div class="slideshow" aria-live="polite">
+          <div class="slides">
+            <img
+              class="slide"
+              src="resources/galleri/Skjermbilde%202025-12-03%20163212.png"
+              alt="Skjermbilde 1"
+            />
+            <img
+              class="slide"
+              src="resources/galleri/Skjermbilde%202025-12-03%20174912.png"
+              alt="Skjermbilde 2"
+            />
+            <img
+              class="slide"
+              src="resources/galleri/Skjermbilde%202025-12-03%20175628.png"
+              alt="Skjermbilde 3"
+            />
+            <img
+              class="slide"
+              src="resources/galleri/Skjermbilde%202025-12-07%20104351.png"
+              alt="Skjermbilde 4"
+            />
+            <img
+              class="slide"
+              src="resources/galleri/Skjermbilde%202025-12-07%20183724.png"
+              alt="Skjermbilde 5"
+            />
+            <img
+              class="slide"
+              src="resources/galleri/Skjermbilde%202025-12-07%20201943.png"
+              alt="Skjermbilde 6"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section class="contact" id="contact">
+        <h2>Trenger du en sang?</h2>
+        <p class="song-note">Trykk play og shuffle i spilleren for en tilfeldig sang.</p>
+        <div class="spotify-embed">
+          <iframe
+            style="border-radius: 16px"
+            src="https://open.spotify.com/embed/playlist/4yNmpwGEvJuDYy0LAsZTqi?utm_source=generator&theme=0"
+            width="100%"
+            height="352"
+            frameborder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+            title="Spotify playlist"
+          ></iframe>
+        </div>
+      </section>
+    </main>
+
+    <aside class="side-menu" id="side-menu" aria-hidden="true">
+      <div class="side-menu-header">
+        <h2>Menu</h2>
+        <button class="menu-close" type="button" aria-label="Close menu">Close</button>
+      </div>
+      <nav class="side-menu-links">
+        <a href="#om-deg">Om deg</a>
+        <a href="#fantastisk">Hvorfor du er så fantastisk?</a>
+        <a href="#aktivitetsvelgeren">Aktivitetsvelgeren</a>
+      </nav>
+    </aside>
+    <div class="menu-backdrop" hidden></div>
+
+    <footer class="site-footer">
+      <p>© 2026 EHV. Crafted with love.</p>
+    </footer>
+
+    <script>
+      const confettiCanvas = document.querySelector(".confetti");
+      const confettiContext = confettiCanvas.getContext("2d");
+
+      const resizeConfetti = () => {
+        confettiCanvas.width = window.innerWidth;
+        confettiCanvas.height = window.innerHeight;
+      };
+
+      resizeConfetti();
+      window.addEventListener("resize", resizeConfetti);
+
+      const confettiColors = ["#f6a07a", "#f3c3a2", "#f7d9c4", "#e35d6a", "#f4b5b0"];
+      const confettiPieces = Array.from({ length: 180 }, () => ({
+        x: Math.random() * confettiCanvas.width,
+        y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+        size: 7 + Math.random() * 7,
+        speed: 1 + Math.random() * 2.5,
+        drift: -0.8 + Math.random() * 1.6,
+        color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+        rotation: Math.random() * Math.PI,
+        rotationSpeed: -0.05 + Math.random() * 0.1,
+      }));
+
+      let confettiStart = null;
+      const confettiDuration = 3200;
+
+      const drawConfetti = (timestamp) => {
+        if (!confettiStart) {
+          confettiStart = timestamp;
+        }
+
+        const progress = (timestamp - confettiStart) / confettiDuration;
+        const fadeStart = 0.75;
+        const alpha = progress > fadeStart ? 1 - (progress - fadeStart) / (1 - fadeStart) : 1;
+
+        confettiContext.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        confettiContext.globalAlpha = Math.max(0, Math.min(alpha, 1));
+
+        confettiPieces.forEach((piece) => {
+          piece.y += piece.speed;
+          piece.x += piece.drift;
+          piece.rotation += piece.rotationSpeed;
+
+          if (piece.y > confettiCanvas.height + piece.size) {
+            piece.y = -piece.size;
+            piece.x = Math.random() * confettiCanvas.width;
+          }
+
+          confettiContext.save();
+          confettiContext.translate(piece.x, piece.y);
+          confettiContext.rotate(piece.rotation);
+          confettiContext.fillStyle = piece.color;
+          confettiContext.fillRect(-piece.size / 2, -piece.size / 2, piece.size, piece.size * 0.6);
+          confettiContext.restore();
+        });
+
+        if (timestamp - confettiStart < confettiDuration) {
+          requestAnimationFrame(drawConfetti);
+        } else {
+          confettiContext.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+          confettiCanvas.classList.add("confetti-hidden");
+          confettiContext.globalAlpha = 1;
+          setTimeout(() => {
+            confettiCanvas.style.display = "none";
+          }, 700);
+        }
+      };
+
+      requestAnimationFrame(drawConfetti);
+
+      const slidesContainer = document.querySelector(".slides");
+      const slides = document.querySelectorAll(".slide");
+      const slideshowToggle = document.querySelector(".slideshow-toggle");
+      const slideIntervalMs = 3500;
+      let slideIndex = 0;
+      let slideTimer = null;
+
+      const showSlide = (index) => {
+        if (!slidesContainer) {
+          return;
+        }
+
+        slideIndex = (index + slides.length) % slides.length;
+        slidesContainer.style.transform = `translateX(-${slideIndex * 100}%)`;
+      };
+
+      const startSlideshow = () => {
+        if (!slideshowToggle || slideTimer) {
+          return;
+        }
+
+        slideTimer = setInterval(() => {
+          showSlide(slideIndex + 1);
+        }, slideIntervalMs);
+        slideshowToggle.textContent = "Pause";
+        slideshowToggle.setAttribute("aria-pressed", "false");
+      };
+
+      const stopSlideshow = () => {
+        if (!slideshowToggle || !slideTimer) {
+          return;
+        }
+
+        clearInterval(slideTimer);
+        slideTimer = null;
+        slideshowToggle.textContent = "Spill av";
+        slideshowToggle.setAttribute("aria-pressed", "true");
+      };
+
+      if (slides.length && slideshowToggle) {
+        showSlide(0);
+        startSlideshow();
+
+        slideshowToggle.addEventListener("click", () => {
+          if (slideTimer) {
+            stopSlideshow();
+          } else {
+            startSlideshow();
+          }
+        });
+      }
+
+      const menuButton = document.querySelector(".menu-button");
+      const sideMenu = document.querySelector(".side-menu");
+      const menuBackdrop = document.querySelector(".menu-backdrop");
+      const menuClose = document.querySelector(".menu-close");
+
+      const setMenuState = (isOpen) => {
+        sideMenu.classList.toggle("open", isOpen);
+        menuButton.setAttribute("aria-expanded", isOpen);
+        sideMenu.setAttribute("aria-hidden", !isOpen);
+        menuBackdrop.hidden = !isOpen;
+        document.body.classList.toggle("menu-open", isOpen);
+      };
+
+      menuButton.addEventListener("click", () => {
+        const isOpen = sideMenu.classList.contains("open");
+        setMenuState(!isOpen);
+      });
+
+      menuClose.addEventListener("click", () => setMenuState(false));
+      menuBackdrop.addEventListener("click", () => setMenuState(false));
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          setMenuState(false);
+        }
+      });
+    </script>
+  </body>
+</html>
