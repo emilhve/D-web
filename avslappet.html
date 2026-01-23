@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Avslappet kveld</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="noise"></div>
+
+    <header class="site-header">
+      <a class="logo" href="index.html" aria-label="Til forsiden">
+        <div class="logo-title">Daniela Lucia Sanchez</div>
+        <div class="logo-subtitle">Verdens beste menneske</div>
+      </a>
+      <a class="menu-button" href="activity.html">Tilbake</a>
+    </header>
+
+    <main>
+      <section class="wheel-section" aria-labelledby="avslappet-title">
+        <h1 id="avslappet-title">La oss starte med middag:)</h1>
+        <button class="cta wheel-spin" type="button">Spinn</button>
+        <button class="cta next-button" type="button" disabled>Gå videre</button>
+        <div class="wheel-wrap">
+          <div class="wheel-pointer" aria-hidden="true"></div>
+          <canvas class="wheel-canvas" width="520" height="520" aria-hidden="true"></canvas>
+        </div>
+        <div class="wheel-result" aria-live="polite">
+          <p class="wheel-result-value">-</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© 2026 EHV. Crafted with love.</p>
+    </footer>
+
+    <script>
+      const wheelItems = [
+        "Taco",
+        "Pizza",
+        "Hamburger",
+        "Lasagne",
+        "Nachos",
+        "Hjemmelagde vårruller",
+        "Pasta bolognese",
+        "Hjemmelaget pokébowl",
+        "Pasta med pesto og kylling",
+        "Ovnsbakt kylling",
+        "Risotto med kylling og sopp",
+        "Bakt potet",
+        "Indisk butter chicken",
+        "Fried rice",
+        "Pad thai",
+        "Nudler og wok",
+        "Fiskegrateng",
+        "Blomkålsuppe",
+        "Fylt paprika",
+        "Kjøttkaker i brun saus",
+        "Lapskaus",
+        "Pannekaker",
+        "Kyllingvinger",
+        "Gryterett med storfekjøtt",
+        "Ovnsbakt pølseform",
+        "Kylling og linser i gryte",
+        "Koteletter m/ tilbehør",
+      ];
+
+      const wheelCanvas = document.querySelector(".wheel-canvas");
+      const wheelWrap = document.querySelector(".wheel-wrap");
+      const spinButton = document.querySelector(".wheel-spin");
+      const nextButton = document.querySelector(".next-button");
+      const resultValue = document.querySelector(".wheel-result-value");
+      const wheelContext = wheelCanvas.getContext("2d");
+      const wheelColors = ["#f6d7d2", "#f1d9c3", "#f7efe4", "#f2c6a5", "#d6c6b1"];
+
+      let currentAngle = 0;
+      let isSpinning = false;
+      let hasSpun = false;
+
+      const sizeWheelCanvas = () => {
+        const maxSize = 520;
+        const wrapSize = Math.min(maxSize, wheelWrap.clientWidth || maxSize);
+        const styles = getComputedStyle(wheelWrap);
+        const paddingX =
+          parseFloat(styles.paddingLeft) + parseFloat(styles.paddingRight);
+        const paddingY =
+          parseFloat(styles.paddingTop) + parseFloat(styles.paddingBottom);
+        const available = Math.max(220, Math.floor(wrapSize - Math.max(paddingX, paddingY)));
+        const dpr = window.devicePixelRatio || 1;
+        wheelCanvas.style.width = `${available}px`;
+        wheelCanvas.style.height = `${available}px`;
+        wheelCanvas.width = Math.floor(available * dpr);
+        wheelCanvas.height = Math.floor(available * dpr);
+        wheelContext.setTransform(dpr, 0, 0, dpr, 0, 0);
+        drawWheel();
+      };
+
+      const getFittedFontSize = (text, maxWidth, baseSize, minSize) => {
+        let size = baseSize;
+        while (size > minSize) {
+          wheelContext.font = `600 ${size}px "Space Grotesk", "Segoe UI", sans-serif`;
+          if (wheelContext.measureText(text).width <= maxWidth) {
+            break;
+          }
+          size -= 1;
+        }
+        return size;
+      };
+
+      const splitLabel = (text, maxWidth, baseSize, minSize) => {
+        const words = text.split(" ");
+        if (words.length < 2) {
+          return [text];
+        }
+
+        const baseFont = getFittedFontSize(text, maxWidth, baseSize, minSize);
+        wheelContext.font = `600 ${baseFont}px "Space Grotesk", "Segoe UI", sans-serif`;
+        if (wheelContext.measureText(text).width <= maxWidth) {
+          return [text];
+        }
+
+        let bestSplit = null;
+        let smallestMax = Infinity;
+        for (let i = 1; i < words.length; i += 1) {
+          const first = words.slice(0, i).join(" ");
+          const second = words.slice(i).join(" ");
+          wheelContext.font = `600 ${baseFont}px "Space Grotesk", "Segoe UI", sans-serif`;
+          const firstWidth = wheelContext.measureText(first).width;
+          const secondWidth = wheelContext.measureText(second).width;
+          const maxWidthUsed = Math.max(firstWidth, secondWidth);
+          if (maxWidthUsed < smallestMax) {
+            smallestMax = maxWidthUsed;
+            bestSplit = [first, second];
+          }
+        }
+
+        return bestSplit || [text];
+      };
+
+      const drawWheel = () => {
+        const radius = wheelCanvas.width / (window.devicePixelRatio || 1) / 2;
+        const center = radius;
+        const sliceAngle = (Math.PI * 2) / wheelItems.length;
+        const textMaxWidth = radius - 24;
+
+        wheelContext.clearRect(0, 0, radius * 2, radius * 2);
+        wheelContext.save();
+        wheelContext.translate(center, center);
+        wheelContext.rotate(currentAngle);
+
+        wheelItems.forEach((item, index) => {
+          const start = index * sliceAngle;
+          const end = start + sliceAngle;
+
+          wheelContext.beginPath();
+          wheelContext.moveTo(0, 0);
+          wheelContext.arc(0, 0, radius, start, end);
+          wheelContext.closePath();
+          wheelContext.fillStyle = wheelColors[index % wheelColors.length];
+          wheelContext.fill();
+          wheelContext.strokeStyle = "rgba(17, 16, 19, 0.1)";
+          wheelContext.stroke();
+
+          wheelContext.save();
+          wheelContext.rotate(start + sliceAngle / 2);
+          wheelContext.textAlign = "right";
+          wheelContext.fillStyle = "#111013";
+          const fontSize = getFittedFontSize(item, textMaxWidth, 14, 9);
+          const lines = splitLabel(item, textMaxWidth, 14, 9);
+          wheelContext.font = `600 ${fontSize}px "Space Grotesk", "Segoe UI", sans-serif`;
+          const lineHeight = fontSize + 2;
+          const lineOffset = (lines.length - 1) * (lineHeight / 2);
+          lines.forEach((line, lineIndex) => {
+            const y = 6 + lineIndex * lineHeight - lineOffset;
+            wheelContext.fillText(line, radius - 18, y);
+          });
+          wheelContext.restore();
+        });
+
+        wheelContext.beginPath();
+        wheelContext.arc(0, 0, 24, 0, Math.PI * 2);
+        wheelContext.fillStyle = "#3b4b2a";
+        wheelContext.fill();
+        wheelContext.restore();
+      };
+
+      const getSelectedIndex = () => {
+        const sliceAngle = (Math.PI * 2) / wheelItems.length;
+        const pointerAngle = Math.PI * 1.5;
+        const normalized =
+          ((pointerAngle - (currentAngle % (Math.PI * 2))) + Math.PI * 2) %
+          (Math.PI * 2);
+        return Math.floor(normalized / sliceAngle);
+      };
+
+      const spinWheel = () => {
+        if (isSpinning || hasSpun) {
+          return;
+        }
+
+        isSpinning = true;
+        spinButton.disabled = true;
+
+        const spinTurns = 4 + Math.random() * 3;
+        const targetOffset = Math.random() * Math.PI * 2;
+        const startAngle = currentAngle;
+        const targetAngle = startAngle + spinTurns * Math.PI * 2 + targetOffset;
+        const duration = 3200;
+        const startTime = performance.now();
+
+        const animate = (time) => {
+          const progress = Math.min((time - startTime) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          currentAngle = startAngle + (targetAngle - startAngle) * eased;
+          drawWheel();
+
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            const selectedIndex = getSelectedIndex();
+            resultValue.textContent = wheelItems[selectedIndex];
+            hasSpun = true;
+            isSpinning = false;
+            nextButton.disabled = false;
+          }
+        };
+
+        requestAnimationFrame(animate);
+      };
+
+      spinButton.addEventListener("click", spinWheel);
+      window.addEventListener("resize", sizeWheelCanvas);
+      sizeWheelCanvas();
+    </script>
+  </body>
+</html>

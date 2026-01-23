@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aktivitetsvelgeren</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="noise"></div>
+
+    <header class="site-header">
+      <a class="logo" href="index.html" aria-label="Til forsiden">
+        <div class="logo-title">Daniela Lucia Sanchez</div>
+        <div class="logo-subtitle">Verdens beste menneske</div>
+      </a>
+      <a class="menu-button" href="index.html">Tilbake</a>
+    </header>
+
+    <main>
+      <section class="activity-chooser" aria-labelledby="kveld-tittel">
+        <h1 id="kveld-tittel">Hva slags type kveld vil du ha?</h1>
+        <div class="choice-row" role="radiogroup" aria-label="Velg type kveld">
+          <label class="choice-card">
+            <span>Romantisk</span>
+            <input type="radio" name="kveld" value="romantisk" />
+          </label>
+          <span class="choice-divider" aria-hidden="true">eller</span>
+          <label class="choice-card">
+            <span>Avslappet</span>
+            <input type="radio" name="kveld" value="avslappet" />
+          </label>
+        </div>
+        <button class="cta start-button" type="button" disabled>Kom i gang</button>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© 2026 EHV. Crafted with love.</p>
+    </footer>
+
+    <script>
+      const startButton = document.querySelector(".start-button");
+      const choiceInputs = document.querySelectorAll('input[name="kveld"]');
+
+      const updateButtonState = () => {
+        const hasSelection = Array.from(choiceInputs).some((input) => input.checked);
+        startButton.disabled = !hasSelection;
+      };
+
+      choiceInputs.forEach((input) => {
+        input.addEventListener("change", updateButtonState);
+      });
+
+      startButton.addEventListener("click", () => {
+        const selected = document.querySelector('input[name="kveld"]:checked');
+        if (!selected) {
+          return;
+        }
+
+        const destination =
+          selected.value === "romantisk" ? "romantisk.html" : "avslappet.html";
+        window.location.href = destination;
+      });
+    </script>
+  </body>
+</html>
