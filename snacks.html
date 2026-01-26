@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Avslappet kveld</title>
+    <title>Snacks</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -18,9 +18,9 @@
     </header>
 
     <main>
-      <section class="wheel-section" aria-labelledby="avslappet-title">
-        <h1 id="avslappet-title">La oss starte med middag:)</h1>
-        <button class="cta wheel-spin" type="button">Spinn</button>
+      <section class="wheel-section" aria-labelledby="snacks-title">
+        <h1 id="snacks-title">Kan ikke glemme snacks</h1>
+        <button class="cta wheel-spin" type="button" disabled>Spinn</button>
         <button class="cta next-button" type="button" disabled>Gå videre</button>
         <div class="wheel-wrap">
           <div class="wheel-pointer" aria-hidden="true"></div>
@@ -28,6 +28,16 @@
         </div>
         <div class="wheel-result" aria-live="polite">
           <p class="wheel-result-value">-</p>
+        </div>
+        <div class="selection-summary">
+          <div class="selection-card">
+            <span class="selection-label">Middag</span>
+            <span class="selection-value" data-choice="dinner">-</span>
+          </div>
+          <div class="selection-card">
+            <span class="selection-label">Dessert</span>
+            <span class="selection-value" data-choice="dessert">-</span>
+          </div>
         </div>
       </section>
     </main>
@@ -38,33 +48,23 @@
 
     <script>
       const wheelItems = [
-        "Taco",
-        "Pizza",
-        "Hamburger",
-        "Lasagne",
-        "Nachos",
-        "Hjemmelagde vårruller",
-        "Pasta bolognese",
-        "Hjemmelaget pokébowl",
-        "Pasta med pesto og kylling",
-        "Ovnsbakt kylling",
-        "Risotto med kylling og sopp",
-        "Bakt potet",
-        "Indisk butter chicken",
-        "Fried rice",
-        "Pad thai",
-        "Nudler og wok",
-        "Fiskegrateng",
-        "Blomkålsuppe",
-        "Fylt paprika",
-        "Kjøttkaker i brun saus",
-        "Lapskaus",
-        "Pannekaker",
-        "Kyllingvinger",
-        "Gryterett med storfekjøtt",
-        "Ovnsbakt pølseform",
-        "Kylling og linser i gryte",
-        "Koteletter m/ tilbehør",
+        "Superchips salt",
+        "Superchips paprika",
+        "Pringles",
+        "Sørlandschips salt",
+        "Sørlandschips paprika",
+        "Cheez-doodles",
+        "Classic salt chips",
+        "Paprika chips",
+        "Potetskruer",
+        "Salt og pepper",
+        "Mexican fiesta",
+        "Pom-Bear",
+        "Popcorn",
+        "Freia sjokolade",
+        "Nidar sjokolade",
+        "Smågodt",
+        "Mykt godteri",
       ];
 
       const wheelCanvas = document.querySelector(".wheel-canvas");
@@ -78,6 +78,9 @@
       let currentAngle = 0;
       let isSpinning = false;
       let hasSpun = false;
+
+      spinButton.disabled = !wheelItems.length;
+      nextButton.disabled = true;
 
       const sizeWheelCanvas = () => {
         const maxSize = 520;
@@ -195,17 +198,8 @@
         wheelContext.restore();
       };
 
-      const getSelectedIndex = () => {
-        const sliceAngle = (Math.PI * 2) / wheelItems.length;
-        const pointerAngle = Math.PI * 1.5;
-        const normalized =
-          ((pointerAngle - (currentAngle % (Math.PI * 2))) + Math.PI * 2) %
-          (Math.PI * 2);
-        return Math.floor(normalized / sliceAngle);
-      };
-
       const spinWheel = () => {
-        if (isSpinning || hasSpun) {
+        if (isSpinning || hasSpun || !wheelItems.length) {
           return;
         }
 
@@ -228,9 +222,15 @@
           if (progress < 1) {
             requestAnimationFrame(animate);
           } else {
-            const selectedIndex = getSelectedIndex();
-            resultValue.textContent = wheelItems[selectedIndex];
-            localStorage.setItem("dinnerChoice", wheelItems[selectedIndex]);
+            const sliceAngle = (Math.PI * 2) / wheelItems.length;
+            const pointerAngle = Math.PI * 1.5;
+            const normalized =
+              ((pointerAngle - (currentAngle % (Math.PI * 2))) + Math.PI * 2) %
+              (Math.PI * 2);
+            const selectedIndex = Math.floor(normalized / sliceAngle);
+            const selection = wheelItems[selectedIndex];
+            resultValue.textContent = selection;
+            localStorage.setItem("snacksChoice", selection);
             hasSpun = true;
             isSpinning = false;
             nextButton.disabled = false;
@@ -240,15 +240,24 @@
         requestAnimationFrame(animate);
       };
 
+      const updateSummary = () => {
+        const dinner = localStorage.getItem("dinnerChoice");
+        const dessert = localStorage.getItem("dessertChoice");
+
+        document.querySelector('[data-choice="dinner"]').textContent = dinner || "-";
+        document.querySelector('[data-choice="dessert"]').textContent = dessert || "-";
+      };
+
+      window.addEventListener("resize", sizeWheelCanvas);
       spinButton.addEventListener("click", spinWheel);
       nextButton.addEventListener("click", () => {
         if (nextButton.disabled) {
           return;
         }
-        window.location.href = "dessert.html";
+        window.location.href = "underholdning.html";
       });
-      window.addEventListener("resize", sizeWheelCanvas);
       sizeWheelCanvas();
+      updateSummary();
     </script>
   </body>
 </html>

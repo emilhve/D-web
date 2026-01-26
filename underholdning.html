@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Avslappet kveld</title>
+    <title>Underholdning</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -18,17 +18,32 @@
     </header>
 
     <main>
-      <section class="wheel-section" aria-labelledby="avslappet-title">
-        <h1 id="avslappet-title">La oss starte med middag:)</h1>
-        <button class="cta wheel-spin" type="button">Spinn</button>
-        <button class="cta next-button" type="button" disabled>Gå videre</button>
+      <section class="wheel-section" aria-labelledby="underholdning-title">
+        <h1 id="underholdning-title">Sist, men ikke minst:<br />Underholdning</h1>
+        <button class="cta wheel-spin" type="button" disabled>Spinn</button>
         <div class="wheel-wrap">
           <div class="wheel-pointer" aria-hidden="true"></div>
           <canvas class="wheel-canvas" width="520" height="520" aria-hidden="true"></canvas>
         </div>
-        <div class="wheel-result" aria-live="polite">
-          <p class="wheel-result-value">-</p>
+        <div class="selection-summary">
+          <div class="selection-card">
+            <span class="selection-label">Middag</span>
+            <span class="selection-value" data-choice="dinner">-</span>
+          </div>
+          <div class="selection-card">
+            <span class="selection-label">Dessert</span>
+            <span class="selection-value" data-choice="dessert">-</span>
+          </div>
+          <div class="selection-card">
+            <span class="selection-label">Snacks</span>
+            <span class="selection-value" data-choice="snacks">-</span>
+          </div>
+          <div class="selection-card" aria-live="polite">
+            <span class="selection-label">Underholdning</span>
+            <span class="selection-value" data-choice="entertainment">-</span>
+          </div>
         </div>
+        <a class="cta end-button" href="index.html">Avslutt</a>
       </section>
     </main>
 
@@ -38,46 +53,63 @@
 
     <script>
       const wheelItems = [
-        "Taco",
-        "Pizza",
-        "Hamburger",
-        "Lasagne",
-        "Nachos",
-        "Hjemmelagde vårruller",
-        "Pasta bolognese",
-        "Hjemmelaget pokébowl",
-        "Pasta med pesto og kylling",
-        "Ovnsbakt kylling",
-        "Risotto med kylling og sopp",
-        "Bakt potet",
-        "Indisk butter chicken",
-        "Fried rice",
-        "Pad thai",
-        "Nudler og wok",
-        "Fiskegrateng",
-        "Blomkålsuppe",
-        "Fylt paprika",
-        "Kjøttkaker i brun saus",
-        "Lapskaus",
-        "Pannekaker",
-        "Kyllingvinger",
-        "Gryterett med storfekjøtt",
-        "Ovnsbakt pølseform",
-        "Kylling og linser i gryte",
-        "Koteletter m/ tilbehør",
+        "About Time",
+        "The Big Sick",
+        "Notting Hill",
+        "Love Actually",
+        "Silver Linings Playbook",
+        "All Quiet on the Western Front",
+        "Marriage Story",
+        "The Trial of the Chicago 7",
+        "The Killer",
+        "Extraction",
+        "Roma",
+        "Purple Hearts",
+        "The Pianist",
+        "The Revenant",
+        "The King",
+        "The Impossible",
+        "Interstellar",
+        "Inception",
+        "The Prestige",
+        "Mad Max: Fury Road",
+        "Gladiator",
+        "The Departed",
+        "A Star Is Born",
+        "Casablanca",
+        "The Hurt Locker",
+        "Air",
+        "Past Lives",
+        "The Tomorrow War",
+        "Sound of Metal",
+        "Manchester by the Sea",
+        "Sicario",
+        "The Equalizer",
+        "Den of Thieves",
+        "John Wick",
+        "Casino Royale",
+        "Quantum of Solace",
+        "Skyfall",
+        "Spectre",
+        "No Time to Die",
+        "The Proposal",
+        "When Harry Met Sally",
+        "The Beast In Me",
       ];
 
       const wheelCanvas = document.querySelector(".wheel-canvas");
       const wheelWrap = document.querySelector(".wheel-wrap");
       const spinButton = document.querySelector(".wheel-spin");
-      const nextButton = document.querySelector(".next-button");
-      const resultValue = document.querySelector(".wheel-result-value");
+      const resultValue = document.querySelector('[data-choice="entertainment"]');
       const wheelContext = wheelCanvas.getContext("2d");
       const wheelColors = ["#f6d7d2", "#f1d9c3", "#f7efe4", "#f2c6a5", "#d6c6b1"];
 
       let currentAngle = 0;
       let isSpinning = false;
       let hasSpun = false;
+
+      spinButton.disabled = !wheelItems.length;
+      localStorage.removeItem("entertainmentChoice");
 
       const sizeWheelCanvas = () => {
         const maxSize = 520;
@@ -176,8 +208,8 @@
           wheelContext.rotate(start + sliceAngle / 2);
           wheelContext.textAlign = "right";
           wheelContext.fillStyle = "#111013";
-          const fontSize = getFittedFontSize(item, textMaxWidth, 14, 9);
-          const lines = splitLabel(item, textMaxWidth, 14, 9);
+          const fontSize = getFittedFontSize(item, textMaxWidth, 12, 8);
+          const lines = splitLabel(item, textMaxWidth, 12, 8);
           wheelContext.font = `600 ${fontSize}px "Space Grotesk", "Segoe UI", sans-serif`;
           const lineHeight = fontSize + 2;
           const lineOffset = (lines.length - 1) * (lineHeight / 2);
@@ -195,17 +227,8 @@
         wheelContext.restore();
       };
 
-      const getSelectedIndex = () => {
-        const sliceAngle = (Math.PI * 2) / wheelItems.length;
-        const pointerAngle = Math.PI * 1.5;
-        const normalized =
-          ((pointerAngle - (currentAngle % (Math.PI * 2))) + Math.PI * 2) %
-          (Math.PI * 2);
-        return Math.floor(normalized / sliceAngle);
-      };
-
       const spinWheel = () => {
-        if (isSpinning || hasSpun) {
+        if (isSpinning || hasSpun || !wheelItems.length) {
           return;
         }
 
@@ -228,27 +251,39 @@
           if (progress < 1) {
             requestAnimationFrame(animate);
           } else {
-            const selectedIndex = getSelectedIndex();
-            resultValue.textContent = wheelItems[selectedIndex];
-            localStorage.setItem("dinnerChoice", wheelItems[selectedIndex]);
+            const sliceAngle = (Math.PI * 2) / wheelItems.length;
+            const pointerAngle = Math.PI * 1.5;
+            const normalized =
+              ((pointerAngle - (currentAngle % (Math.PI * 2))) + Math.PI * 2) %
+              (Math.PI * 2);
+            const selectedIndex = Math.floor(normalized / sliceAngle);
+            const selection = wheelItems[selectedIndex];
+            resultValue.textContent = selection;
+            localStorage.setItem("entertainmentChoice", selection);
             hasSpun = true;
             isSpinning = false;
-            nextButton.disabled = false;
           }
         };
 
         requestAnimationFrame(animate);
       };
 
-      spinButton.addEventListener("click", spinWheel);
-      nextButton.addEventListener("click", () => {
-        if (nextButton.disabled) {
-          return;
-        }
-        window.location.href = "dessert.html";
-      });
+      const updateSummary = () => {
+        const dinner = localStorage.getItem("dinnerChoice");
+        const dessert = localStorage.getItem("dessertChoice");
+        const snacks = localStorage.getItem("snacksChoice");
+
+        document.querySelector('[data-choice="dinner"]').textContent = dinner || "-";
+        document.querySelector('[data-choice="dessert"]').textContent = dessert || "-";
+        document.querySelector('[data-choice="snacks"]').textContent = snacks || "-";
+        document.querySelector('[data-choice="entertainment"]').textContent =
+          localStorage.getItem("entertainmentChoice") || "-";
+      };
+
       window.addEventListener("resize", sizeWheelCanvas);
+      spinButton.addEventListener("click", spinWheel);
       sizeWheelCanvas();
+      updateSummary();
     </script>
   </body>
 </html>
