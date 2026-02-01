@@ -18,18 +18,321 @@
     </header>
 
     <main>
-      <section class="hero">
+      <section class="hero hero-compact">
         <div class="hero-content">
-          <h1>Romantisk kveld</h1>
-          <p class="lead">
-            Her kan vi legge inn romantiske forslag og aktiviteter.
-          </p>
+          <h1>Forslag til date ❤️</h1>
         </div>
+      </section>
+      <section class="date-table-section">
+        <table class="date-table">
+          <colgroup>
+            <col />
+            <col />
+            <col />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Forslag</th>
+              <th>Gjennomf&#248;rt</th>
+              <th>Kommentar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Kino</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Teater</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Minigolf</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Shuffleboard</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Brettspill</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Cocktail-kveld</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Middag p&#229; restaurant</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Kaf&#233;-date</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Perlekveld</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Strikkekveld</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Male/Tegne</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Badstu og Bading</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Pirbadet</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Buldring</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Padel</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Duospill p&#229; PS5</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Museumdate</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Dra p&#229; event p&#229; Samf</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Bare Flyt</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Ringve Botaniske Hage</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Tennis</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Biltur til Levanger</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Biltur til Tautra</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Tur til Munkholmen</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Biltur til Steinvikholmen</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>G&#229;tur i Bymarka</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Fottur til &#216;yberget</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>G&#229;tur til Langtj&#248;nna</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Fottur til utsiktst&#229;rnet p&#229; Solemsv&#229;ttan</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Fottur til M&#229;nen</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>G&#229;tur til Estenstadhytta</td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
       </section>
     </main>
 
     <footer class="site-footer">
       <p>© 2026 EHV. Crafted with love.</p>
     </footer>
+    <script>
+      const countCells = document.querySelectorAll(".date-table tbody td:nth-child(2)");
+      const commentCells = document.querySelectorAll(".date-table tbody td:nth-child(3)");
+      const storagePrefix = "date-counter:";
+      const commentPrefix = "date-comment:";
+
+      const slugify = (value) =>
+        value
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)+/g, "");
+
+      countCells.forEach((cell, index) => {
+        const labelCell = cell.parentElement?.querySelector("td");
+        const labelText = labelCell?.textContent?.trim() || "Aktivitet";
+        const storageKey = `${storagePrefix}${slugify(labelText) || `item-${index + 1}`}`;
+
+        const storedValue = window.localStorage.getItem(storageKey);
+        const initialValue = storedValue ?? cell.dataset.count ?? "0";
+        let count = Number.parseInt(initialValue, 10);
+        if (Number.isNaN(count)) {
+          count = 0;
+        }
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "count-control";
+
+        const minusButton = document.createElement("button");
+        minusButton.type = "button";
+        minusButton.className = "count-button";
+        minusButton.setAttribute("aria-label", `Trekk fra for ${labelText}`);
+        minusButton.textContent = "−";
+
+        const plusButton = document.createElement("button");
+        plusButton.type = "button";
+        plusButton.className = "count-button";
+        plusButton.setAttribute("aria-label", `Legg til for ${labelText}`);
+        plusButton.textContent = "+";
+
+        const text = document.createElement("span");
+        text.className = "count-text";
+        text.innerHTML = `<span class="count-number">${count}</span> ganger`;
+
+        const updateText = () => {
+          const numberEl = text.querySelector(".count-number");
+          if (numberEl) {
+            numberEl.textContent = `${count}`;
+          }
+        };
+
+        const persist = () => {
+          window.localStorage.setItem(storageKey, `${count}`);
+        };
+
+        minusButton.addEventListener("click", () => {
+          count = Math.max(0, count - 1);
+          updateText();
+          persist();
+        });
+
+        plusButton.addEventListener("click", () => {
+          count += 1;
+          updateText();
+          persist();
+        });
+
+        wrapper.append(minusButton, text, plusButton);
+        cell.appendChild(wrapper);
+      });
+
+      commentCells.forEach((cell, index) => {
+        const labelCell = cell.parentElement?.querySelector("td");
+        const labelText = labelCell?.textContent?.trim() || "Aktivitet";
+        const storageKey = `${commentPrefix}${slugify(labelText) || `item-${index + 1}`}`;
+        const storedValue = window.localStorage.getItem(storageKey) ?? "";
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "comment-control";
+
+        const textarea = document.createElement("textarea");
+        textarea.className = "comment-field";
+        textarea.setAttribute("aria-label", `Kommentar for ${labelText}`);
+        textarea.value = storedValue;
+        textarea.readOnly = true;
+
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.className = "comment-button";
+        editButton.textContent = "Rediger";
+
+        const saveButton = document.createElement("button");
+        saveButton.type = "button";
+        saveButton.className = "comment-button";
+        saveButton.textContent = "Lagre";
+        saveButton.disabled = true;
+
+        const clearButton = document.createElement("button");
+        clearButton.type = "button";
+        clearButton.className = "comment-button comment-button--danger";
+        clearButton.textContent = "Tøm";
+
+        const setEditing = (isEditing) => {
+          textarea.readOnly = !isEditing;
+          textarea.classList.toggle("is-editing", isEditing);
+          saveButton.disabled = !isEditing;
+        };
+
+        editButton.addEventListener("click", () => {
+          setEditing(true);
+          textarea.focus();
+        });
+
+        saveButton.addEventListener("click", () => {
+          window.localStorage.setItem(storageKey, textarea.value);
+          setEditing(false);
+        });
+
+        clearButton.addEventListener("click", () => {
+          textarea.value = "";
+          window.localStorage.removeItem(storageKey);
+          setEditing(false);
+        });
+
+        const buttonGroup = document.createElement("div");
+        buttonGroup.className = "comment-actions";
+        buttonGroup.append(editButton, saveButton, clearButton);
+
+        wrapper.append(textarea, buttonGroup);
+        cell.appendChild(wrapper);
+      });
+    </script>
   </body>
 </html>
