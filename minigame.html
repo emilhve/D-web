@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Minigame</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="noise"></div>
+
+    <header class="site-header">
+      <a class="logo" href="index.html" aria-label="Til forsiden">
+        <div class="logo-title">Daniela Lucia Sanchez</div>
+        <div class="logo-subtitle">Verdens beste menneske</div>
+      </a>
+      <a class="menu-button" href="index.html">Tilbake</a>
+    </header>
+
+    <main>
+      <section class="hero hero-compact">
+        <div class="hero-content">
+          <h1>Minigame</h1>
+          <p class="lead">Finn det riktige bildet hver runde innen 10 sekunder.</p>
+        </div>
+      </section>
+
+      <section class="story">
+        <div class="game-start">
+          <h2>Klar?</h2>
+          <p>Trykk for å starte spillet.</p>
+          <button class="cta game-start-button" type="button">Start spill</button>
+        </div>
+        <div class="game-status">
+          <div class="game-round" aria-live="polite">Runde 1 av 5</div>
+          <div class="game-score" aria-live="polite" hidden>Poeng: 0</div>
+        </div>
+        <div class="game-miss" hidden>Du trykket ikke i tide:(</div>
+        <div class="game-countdown" aria-live="polite">3</div>
+        <div class="game-grid" role="grid" aria-label="Minigame grid"></div>
+        <div class="game-finish" hidden>
+          <h2>Ferdig!</h2>
+          <p class="final-score">Du fikk 0 av 5 riktige.</p>
+          <button class="cta game-restart" type="button">Spill igjen</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© 2026 EHV. Crafted with love.</p>
+    </footer>
+
+    <script>
+      const totalRounds = 5;
+      const gridSize = 16;
+      const rounds = [
+        { correct: "resources/game1/R1.jpeg", wrong: "resources/game1/R1-modified.jpeg" },
+        { correct: "resources/game1/R2.jpeg", wrong: "resources/game1/R2-modified.jpeg" },
+        { correct: "resources/game1/R3.jpeg", wrong: "resources/game1/R3-modified.jpeg" },
+        { correct: "resources/game1/R4.jpeg", wrong: "resources/game1/R4-modified.jpeg" },
+        { correct: "resources/game1/R5.jpeg", wrong: "resources/game1/R5-modified.jpeg" },
+      ];
+
+      const grid = document.querySelector(".game-grid");
+      const roundLabel = document.querySelector(".game-round");
+      const scoreLabel = document.querySelector(".game-score");
+      const countdown = document.querySelector(".game-countdown");
+      const finishPanel = document.querySelector(".game-finish");
+      const finalScore = document.querySelector(".final-score");
+      const restartButton = document.querySelector(".game-restart");
+      const startPanel = document.querySelector(".game-start");
+      const startButton = document.querySelector(".game-start-button");
+      const missNote = document.querySelector(".game-miss");
+
+      const correctAudio = new Audio("resources/game1/evenferdig.mp4");
+      correctAudio.preload = "auto";
+      correctAudio.playbackRate = 1.25;
+
+      let currentRound = 1;
+      let score = 0;
+      let correctIndex = 0;
+      let countdownTimer = null;
+      let countdownValue = 3;
+      let roundTimer = null;
+
+      const updateStatus = () => {
+        roundLabel.textContent = `Runde ${currentRound} av ${totalRounds}`;
+        scoreLabel.textContent = `Poeng: ${score}`;
+      };
+
+      const handlePick = (event) => {
+        const button = event.currentTarget;
+        const pickedIndex = Number(button.dataset.index);
+        if (pickedIndex === correctIndex) {
+          score += 1;
+          correctAudio.currentTime = 0;
+          correctAudio.play().catch(() => {});
+        }
+
+        if (roundTimer) {
+          clearTimeout(roundTimer);
+          roundTimer = null;
+        }
+
+        if (currentRound < totalRounds) {
+          currentRound += 1;
+          showCountdown();
+        } else {
+          endGame();
+        }
+      };
+
+      const showCountdown = (showMissNote = false) => {
+        startPanel.hidden = true;
+        grid.hidden = true;
+        grid.innerHTML = "";
+        finishPanel.hidden = true;
+        updateStatus();
+        countdown.hidden = false;
+        missNote.hidden = !showMissNote;
+        countdownValue = 3;
+        countdown.textContent = countdownValue;
+        if (countdownTimer) {
+          clearInterval(countdownTimer);
+        }
+
+        countdownTimer = setInterval(() => {
+          countdownValue -= 1;
+          if (countdownValue <= 0) {
+            clearInterval(countdownTimer);
+            countdownTimer = null;
+            countdown.hidden = true;
+            missNote.hidden = true;
+            renderRound();
+            return;
+          }
+          countdown.textContent = countdownValue;
+        }, 1000);
+      };
+
+      const renderRound = () => {
+        updateStatus();
+        scoreLabel.hidden = true;
+        grid.innerHTML = "";
+        const roundData = rounds[currentRound - 1];
+        correctIndex = Math.floor(Math.random() * gridSize);
+
+        for (let i = 0; i < gridSize; i += 1) {
+          const cell = document.createElement("button");
+          cell.type = "button";
+          cell.className = "game-cell";
+          cell.dataset.index = i;
+          cell.setAttribute("role", "gridcell");
+          const image = document.createElement("img");
+          image.src = i === correctIndex ? roundData.correct : roundData.wrong;
+          image.alt = "Bildevalg";
+          image.loading = "lazy";
+          cell.appendChild(image);
+          cell.addEventListener("click", handlePick);
+          grid.appendChild(cell);
+        }
+
+        countdown.hidden = true;
+        grid.hidden = false;
+
+        if (roundTimer) {
+          clearTimeout(roundTimer);
+        }
+        roundTimer = setTimeout(() => {
+          roundTimer = null;
+          if (currentRound < totalRounds) {
+            currentRound += 1;
+            showCountdown(true);
+          } else {
+            endGame();
+          }
+        }, 10000);
+      };
+
+      const endGame = () => {
+        updateStatus();
+        scoreLabel.hidden = false;
+        finalScore.textContent = `Du fikk ${score} av ${totalRounds} riktige.`;
+        grid.hidden = true;
+        finishPanel.hidden = false;
+        countdown.hidden = true;
+        startPanel.hidden = true;
+        missNote.hidden = true;
+        if (roundTimer) {
+          clearTimeout(roundTimer);
+          roundTimer = null;
+        }
+        if (countdownTimer) {
+          clearInterval(countdownTimer);
+          countdownTimer = null;
+        }
+      };
+
+      const restartGame = () => {
+        currentRound = 1;
+        score = 0;
+        if (roundTimer) {
+          clearTimeout(roundTimer);
+          roundTimer = null;
+        }
+        showCountdown();
+      };
+
+      restartButton.addEventListener("click", restartGame);
+      startButton.addEventListener("click", () => {
+        missNote.hidden = true;
+        showCountdown();
+      });
+      startPanel.hidden = false;
+      grid.hidden = true;
+      countdown.hidden = true;
+      missNote.hidden = true;
+    </script>
+  </body>
+</html>
