@@ -76,12 +76,16 @@
       correctAudio.preload = "auto";
       correctAudio.playbackRate = 1.25;
 
+      const introAudio = new Audio("resources/game1/even2.mp4");
+      introAudio.preload = "auto";
+
       let currentRound = 1;
       let score = 0;
       let correctIndex = 0;
       let countdownTimer = null;
       let countdownValue = 3;
       let roundTimer = null;
+      let introPlayed = false;
 
       const updateStatus = () => {
         roundLabel.textContent = `Runde ${currentRound} av ${totalRounds}`;
@@ -209,6 +213,17 @@
       restartButton.addEventListener("click", restartGame);
       startButton.addEventListener("click", () => {
         missNote.hidden = true;
+        if (introPlayed) {
+          showCountdown();
+          return;
+        }
+
+        introPlayed = true;
+        introAudio.currentTime = 0;
+        const playPromise = introAudio.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch(() => {});
+        }
         showCountdown();
       });
       startPanel.hidden = false;
