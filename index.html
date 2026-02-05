@@ -47,33 +47,93 @@
           <div class="slides">
             <img
               class="slide"
-              src="resources/galleri/Skjermbilde%202025-12-03%20163212.png"
-              alt="Skjermbilde 1"
+              src="resources/slideshow/616e4e37-016f-4042-9678-bed0fe292931.jpg"
+              alt="Slideshow image 1"
             />
             <img
               class="slide"
-              src="resources/galleri/Skjermbilde%202025-12-03%20174912.png"
-              alt="Skjermbilde 2"
+              src="resources/slideshow/62962ae1-5d27-4bdb-918f-ca0f60d49223.jpg"
+              alt="Slideshow image 2"
             />
             <img
               class="slide"
-              src="resources/galleri/Skjermbilde%202025-12-03%20175628.png"
-              alt="Skjermbilde 3"
+              src="resources/slideshow/75df9224-ad88-4eb2-aa46-c776554913bc.jpg"
+              alt="Slideshow image 3"
             />
             <img
               class="slide"
-              src="resources/galleri/Skjermbilde%202025-12-07%20104351.png"
-              alt="Skjermbilde 4"
+              src="resources/slideshow/9fb8cb19-2f81-46b3-8dbe-40dd689d15c4.jpg"
+              alt="Slideshow image 4"
             />
             <img
               class="slide"
-              src="resources/galleri/Skjermbilde%202025-12-07%20183724.png"
-              alt="Skjermbilde 5"
+              src="resources/slideshow/att.ht5V8iWd7eFqmKkYfF8WYRoi0URNafiWhzkDI7cFuME.JPG"
+              alt="Slideshow image 5"
             />
             <img
               class="slide"
-              src="resources/galleri/Skjermbilde%202025-12-07%20201943.png"
-              alt="Skjermbilde 6"
+              src="resources/slideshow/att.RMUkCfVUJf8k4WSta6bYXjodQwXvdID-9bszxuE8yC0.JPG"
+              alt="Slideshow image 6"
+            />
+            <img
+              class="slide"
+              src="resources/slideshow/corndog.jpg"
+              alt="Slideshow image 7"
+            />
+            <img
+              class="slide"
+              src="resources/slideshow/IMG_3499.jpg"
+              alt="Slideshow image 8"
+            />
+            <img
+              class="slide"
+              src="resources/slideshow/IMG_3656.jpg"
+              alt="Slideshow image 9"
+            />
+            <img
+              class="slide"
+              src="resources/slideshow/IMG_3748.jpg"
+              alt="Slideshow image 10"
+            />
+            <img
+              class="slide"
+              src="resources/slideshow/IMG_4044.JPG"
+              alt="Slideshow image 11"
+            />
+            <img
+              class="slide"
+              src="resources/slideshow/IMG_4365.JPG"
+              alt="Slideshow image 12"
+            />
+            <img
+              class="slide"
+              src="resources/slideshow/IMG_4430.JPG"
+              alt="Slideshow image 13"
+            />
+            <img
+              class="slide"
+              src="resources/slideshow/IMG_4554.JPG"
+              alt="Slideshow image 14"
+            />
+            <img
+              class="slide"
+              src="resources/slideshow/IMG_4863.JPG"
+              alt="Slideshow image 15"
+            />
+            <img
+              class="slide"
+              src="resources/slideshow/IMG_4908.JPG"
+              alt="Slideshow image 16"
+            />
+            <img
+              class="slide"
+              src="resources/slideshow/restaurant1.jpg"
+              alt="Slideshow image 17"
+            />
+            <img
+              class="slide"
+              src="resources/slideshow/vikinghjelm.jpg"
+              alt="Slideshow image 18"
             />
           </div>
         </div>
@@ -193,6 +253,21 @@
       let slideIndex = 0;
       let slideTimer = null;
 
+      const shuffleSlides = () => {
+        if (!slidesContainer || slides.length < 2) {
+          return;
+        }
+
+        const slideArray = Array.from(slides);
+        for (let i = slideArray.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [slideArray[i], slideArray[j]] = [slideArray[j], slideArray[i]];
+        }
+
+        slidesContainer.innerHTML = "";
+        slideArray.forEach((slide) => slidesContainer.appendChild(slide));
+      };
+
       const showSlide = (index) => {
         if (!slidesContainer) {
           return;
@@ -226,6 +301,7 @@
       };
 
       if (slides.length && slideshowToggle) {
+        shuffleSlides();
         showSlide(0);
         startSlideshow();
 

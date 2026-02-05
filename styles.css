@@ -7,6 +7,7 @@
   --sky: #f2c6a5;
   --moss: #3b4b2a;
   --shadow: rgba(17, 16, 19, 0.12);
+  --page-bg: linear-gradient(135deg, #f5eadc 0%, #f1d9c3 55%, #f6dcc4 100%);
 }
 
 * {
@@ -18,7 +19,7 @@
 body {
   font-family: "Space Grotesk", "Segoe UI", sans-serif;
   color: var(--ink);
-  background: linear-gradient(135deg, #f5eadc 0%, #f1d9c3 55%, #f6dcc4 100%);
+  background: var(--page-bg);
   min-height: 100vh;
   line-height: 1.6;
   position: relative;
@@ -667,7 +668,7 @@ main {
   overflow: hidden;
   border-radius: 24px;
   box-shadow: 0 20px 40px rgba(39, 67, 53, 0.15);
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--page-bg);
   width: min(520px, 100%);
   margin: 0 auto;
   height: clamp(220px, 35vw, 360px);
@@ -689,7 +690,7 @@ main {
   height: 100%;
   object-fit: contain;
   display: block;
-  background: rgba(255, 255, 255, 0.2);
+  background: transparent;
 }
 
 .contact {
