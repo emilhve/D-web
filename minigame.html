@@ -86,6 +86,28 @@
       let countdownValue = 3;
       let roundTimer = null;
       let introPlayed = false;
+      let imagesReady = false;
+
+      const uniqueImageSources = Array.from(
+        new Set(rounds.flatMap((round) => [round.correct, round.wrong]))
+      );
+
+      const preloadImages = () =>
+        Promise.all(
+          uniqueImageSources.map(
+            (src) =>
+              new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve();
+                img.onerror = () => resolve();
+                img.src = src;
+              })
+          )
+        ).then(() => {
+          imagesReady = true;
+        });
+
+      const imagesReadyPromise = preloadImages();
 
       const updateStatus = () => {
         roundLabel.textContent = `Runde ${currentRound} av ${totalRounds}`;
@@ -122,24 +144,40 @@
         updateStatus();
         countdown.hidden = false;
         missNote.hidden = !showMissNote;
-        countdownValue = 3;
-        countdown.textContent = countdownValue;
         if (countdownTimer) {
           clearInterval(countdownTimer);
         }
 
-        countdownTimer = setInterval(() => {
-          countdownValue -= 1;
-          if (countdownValue <= 0) {
-            clearInterval(countdownTimer);
-            countdownTimer = null;
-            countdown.hidden = true;
-            missNote.hidden = true;
-            renderRound();
-            return;
-          }
+        const startCountdownTimer = () => {
+          countdownValue = 3;
           countdown.textContent = countdownValue;
-        }, 1000);
+          countdownTimer = setInterval(() => {
+            countdownValue -= 1;
+            if (countdownValue <= 0) {
+              clearInterval(countdownTimer);
+              countdownTimer = null;
+              countdown.hidden = true;
+              missNote.hidden = true;
+              renderRound();
+              return;
+            }
+            countdown.textContent = countdownValue;
+          }, 1000);
+        };
+
+        if (!imagesReady) {
+          countdown.textContent = "Laster...";
+          imagesReadyPromise.then(() => {
+            if (countdownTimer) {
+              clearInterval(countdownTimer);
+              countdownTimer = null;
+            }
+            startCountdownTimer();
+          });
+          return;
+        }
+
+        startCountdownTimer();
       };
 
       const renderRound = () => {
@@ -158,7 +196,6 @@
           const image = document.createElement("img");
           image.src = i === correctIndex ? roundData.correct : roundData.wrong;
           image.alt = "Bildevalg";
-          image.loading = "lazy";
           cell.appendChild(image);
           cell.addEventListener("click", handlePick);
           grid.appendChild(cell);
